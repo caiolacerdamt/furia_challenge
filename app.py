@@ -7,14 +7,20 @@ def main():
         st.session_state.usuario_cadastrado = False
 
     if not st.session_state.usuario_cadastrado:
-        aba = st.sidebar.radio("Acesso", ["Login", "Cadastro"])
-        if aba == "Login":
-            cadastro.tela_login()
+        if st.session_state.get("confirmando_email"):
+            cadastro.tela_confirmacao_email()
         else:
-            cadastro.tela_cadastro()
+            aba = st.sidebar.radio("Acesso", ["Login", "Cadastro"])
+            if aba == "Login":
+                if st.session_state.get("recuperar_senha"):
+                    cadastro.tela_recuperar_senha()
+                else:
+                    cadastro.tela_login()
+            else:
+                cadastro.tela_cadastro()
     
     else:
-        st.sidebar.markdown(f"👤 Olá, **{st.session_state.get('user_nome', 'Usuário')}**")
+        st.sidebar.markdown(f"👤 Fala, Furioso")
 
         menu = st.sidebar.selectbox("Menu", ["Home", "Games", "Fans"])
         if menu == "Home":
@@ -31,4 +37,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
