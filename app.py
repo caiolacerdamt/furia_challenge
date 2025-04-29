@@ -5,6 +5,7 @@ from app.pages.cadastro import (
 )
 from app.pages.home import HomePage
 from app.pages.perfil import TelaPerfil
+from app.pages.fans import InstagramPostsRenderer
 #from pages.games import GamesPage
 #from pages.fans import FansPage
 
@@ -47,7 +48,7 @@ def main():
             "Home": HomePage(),
             "Perfil": TelaPerfil(),
             #Games": GamesPage(),
-            #"Fans": FansPage()
+            "Fans": InstagramPostsRenderer()
         }
         pages[menu].render()
 
