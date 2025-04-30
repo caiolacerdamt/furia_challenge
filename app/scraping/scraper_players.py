@@ -64,6 +64,13 @@ class FuriaScraper:
             jogador_ref = time_ref.collection("jogadores").document(apelido_id)
             jogador_ref.set(jogador)
 
+            self.salvar_apelido(jogador["apelido"])
+
+    def salvar_apelido(self, apelido):
+        apelido_id = apelido.lower().replace(" ", "_")
+        apelidos_ref = db_firebase.collection("apelidos").document("lista")  
+        apelidos_ref.set({apelido_id: apelido}, merge=True)
+
     def salvar_dados_gerais(self):
         jogos = {}
 
@@ -87,6 +94,72 @@ class FuriaScraper:
     def get_game(url):
         return url.split("/")[5]
 
+    
+class FuriaKingsLeagueScraper:
+    def __init__(self, url):
+        self.url = url
+    
+    def extrair_nomes_jogadores(self):
+        jogadores = []
+
+        with sync_playwright() as p:
+            browser = p.chromium.launch(headless=True)
+            page = browser.new_page()
+            page.goto(self.url)
+            page.wait_for_timeout(5000)
+
+            containers = page.query_selector_all('.player-card-container')
+
+            for container in containers:
+                try:
+                    nome_element = container.query_selector('.player-name')
+                    nome_jogador = nome_element.inner_text().strip() if nome_element else None
+                    
+                    funcao_element = container.query_selector('.player-role')
+                    funcao = funcao_element.inner_text().strip() if funcao_element else None
+                    
+                    overall_element = container.query_selector('p.stat-value')
+                    overall = overall_element.inner_text().strip() if overall_element else None
+
+                    if nome_jogador and funcao and overall:
+                        jogadores.append({
+                            "nome": nome_jogador,
+                            "função": funcao,
+                            "overall": overall
+                        })
+
+                except Exception as e:
+                    print(f"Erro ao processar um jogador: {e}")
+                    continue
+
+            browser.close()
+
+        return jogadores
+
+    def salvar_jogadores(self, jogadores):
+        jogo = "kingsleague"
+        team_id = "furiafc"
+        time_ref = db_firebase.collection("jogos").document(jogo).collection("times").document(team_id)
+
+        for jogador in jogadores:
+            apelido_id = jogador["nome"].lower().replace(" ", "_")
+            jogador_ref = time_ref.collection("jogadores").document(apelido_id)
+            jogador_ref.set(jogador)
+
+            self.salvar_apelido(jogador["nome"])
+
+    def salvar_apelido(self, apelido):
+        apelido_id = apelido.lower().replace(" ", "_")
+        apelidos_ref = db_firebase.collection("apelidos").document("lista")  
+        apelidos_ref.set({apelido_id: apelido}, merge=True)
+
+    def run(self):
+        jogadores = self.extrair_nomes_jogadores()
+        self.salvar_jogadores(jogadores)
+
+        jogo_ref = db_firebase.collection("jogos").document("kingsleague")
+        jogo_ref.set({"nome": "Kings League"}, merge=True)
+        print(f"{len(jogadores)} jogadores salvos para 'furiafc' no jogo")
 
 if __name__ == "__main__":
     urls = [
@@ -109,5 +182,9 @@ if __name__ == "__main__":
         "https://escharts.com/pt/teams/rl/furia"
     ]
 
-    scraper = FuriaScraper(urls)
-    scraper.run()
+    furia_scraper = FuriaScraper(urls)
+    furia_scraper.run()
+
+    kingsleague_url = "https://kingsleague.pro/pt/times/50-furia-fc"
+    kings_scraper = FuriaKingsLeagueScraper(kingsleague_url)
+    kings_scraper.run()

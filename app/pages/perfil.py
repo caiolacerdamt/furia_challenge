@@ -24,30 +24,43 @@ class TelaPerfil(TelaBase):
             cpf = dados_usuario.get("cpf", "CPF não disponível")
             data_nascimento = dados_usuario.get("data_nascimento", "Data de nascimento não disponível")
             genero = dados_usuario.get("genero", "Gênero não disponível")
+            pais = dados_usuario.get("pais", "País não disponível")
+            numero = dados_usuario.get("numero", "Número não disponível")
+            avatar_url = dados_usuario.get("avatar_url", "https://via.placeholder.com/150")
             jogos_acompanhados = dados_usuario.get("jogos_acompanhados", [])
+            players_favoritos = dados_usuario.get("players_favoritos", [])
 
             st.markdown("""
                 <style>
                     body {
                         background-color: #0d1117;
                         color: #c9d1d9;
+                        text-align: center;
                     }
                     .perfil-container {
                         background-color: #161b22;
                         padding: 2rem;
                         border-radius: 12px;
                         margin-bottom: 2rem;
+                        display: inline-block;
+                        text-align: left;
                     }
                     .perfil-title {
                         font-size: 32px;
                         font-weight: 700;
-                        text-align: center;
                         margin-bottom: 1.5rem;
                         color: #fff;
                     }
                     .perfil-item {
                         font-size: 18px;
                         margin-bottom: 0.8rem;
+                    }
+                    .avatar {
+                        border-radius: 50%;
+                        width: 120px;
+                        height: 120px;
+                        border: 3px solid #58a6ff;
+                        margin: 0 auto 1rem;
                     }
                     .badges-container {
                         display: flex;
@@ -73,10 +86,22 @@ class TelaPerfil(TelaBase):
                         text-align: center;
                         margin-bottom: 0.8rem;
                     }
+                    .flex-row {
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: center;
+                        margin-bottom: 1rem;
+                    }
+                    .flex-column {
+                        display: flex;
+                        flex-direction: column;
+                    }
                 </style>
             """, unsafe_allow_html=True)
 
             st.markdown("<div class='perfil-title'>Meu Perfil 👤</div>", unsafe_allow_html=True)
+
+            st.markdown(f"<img src='{avatar_url}' alt='Avatar' class='avatar'>", unsafe_allow_html=True)
 
             st.markdown("<div class='perfil-container'>", unsafe_allow_html=True)
 
@@ -86,6 +111,9 @@ class TelaPerfil(TelaBase):
             st.markdown(f"<div class='perfil-item'>🆔 <b>CPF:</b> {cpf}</div>", unsafe_allow_html=True)
             st.markdown(f"<div class='perfil-item'>🎂 <b>Data de Nascimento:</b> {data_nascimento}</div>", unsafe_allow_html=True)
             st.markdown(f"<div class='perfil-item'>⚧️ <b>Gênero:</b> {genero}</div>", unsafe_allow_html=True)
+
+            st.markdown(f"<div class='perfil-item'>🌍 <b>País:</b> {pais}</div>", unsafe_allow_html=True)
+            st.markdown(f"<div class='perfil-item'>🔢 <b>Número:</b> {numero}</div>", unsafe_allow_html=True)
 
             st.markdown("</div>", unsafe_allow_html=True)
 
@@ -97,11 +125,21 @@ class TelaPerfil(TelaBase):
                     badges_html += f"<div class='badge'>{jogo.capitalize()}</div>"
                 badges_html += "</div>"
                 st.markdown(badges_html, unsafe_allow_html=True)
+                st.markdown("</div>", unsafe_allow_html=True)
             else:
                 st.markdown("<div class='section-title'>Você ainda não acompanha nenhum jogo.</div>", unsafe_allow_html=True)
 
+            if players_favoritos:
+                st.markdown("<div class='section-title'>🏆 Jogadores Favoritos</div>", unsafe_allow_html=True)
+                st.markdown("<div class='perfil-container'>", unsafe_allow_html=True)
+                badges_html = "<div class='badges-container'>"
+                for player in players_favoritos:
+                    badges_html += f"<div class='badge'>{player.capitalize()}</div>"
+                badges_html += "</div>"
+                st.markdown(badges_html, unsafe_allow_html=True)
+                st.markdown("</div>", unsafe_allow_html=True)
+            else:
+                st.markdown("<div class='section-title'>Você ainda não tem jogadores favoritos.</div>", unsafe_allow_html=True)
+
         else:
             st.error("Erro ao carregar os dados do usuário.")
-
-
-

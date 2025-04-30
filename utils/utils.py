@@ -1,6 +1,7 @@
 import requests
 import os
 from dotenv import load_dotenv
+from app.firebase.firebase_admin import db_firebase
 
 load_dotenv()
 
@@ -21,13 +22,13 @@ def validar_cpf(cpf: str) -> bool:
 
 IMGUR_CLIENT_ID = os.getenv("IMGUR_CLIENT_ID")
 
-def upload_to_imgur(image_url: str) -> str:
+def upload_to_imgur(image_data: str, data_type="url") -> str:
     headers = {"Authorization": f"Client-ID {IMGUR_CLIENT_ID}"}
-    data = {"image": image_url, "type": "url"}  
-    response = requests.post("https://api.imgur.com/3/image", headers=headers, data=data)
-    
-    if response.status_code == 200:
+    payload = {"image": image_data, "type": data_type}
+    url = "https://api.imgur.com/3/upload"
+    response = requests.post(url, headers=headers, data=payload)
+    if response.ok:
         return response.json()["data"]["link"]
     else:
-        print(f"Erro ao fazer upload para o Imgur: {response.status_code}, {response.text}")
-        return ""
+        raise Exception(f"Imgur upload failed: {response.status_code}, {response.text}")
+    

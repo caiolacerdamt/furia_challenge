@@ -3,7 +3,8 @@ from app.firebase.auth_config import auth
 from app.firebase.firebase_admin import db_firebase
 from datetime import datetime, date
 from itertools import cycle
-from utils.utils import validar_cpf
+from utils.utils import validar_cpf, upload_to_imgur
+import base64
 
 class TelaBase:
     def render(self):
@@ -11,7 +12,7 @@ class TelaBase:
 
 class TelaLogin(TelaBase):
     def render(self):
-        st.markdown("<h2 style='text-align: center;'>Bem-vindo de volta 👋</h2>", unsafe_allow_html=True)
+        st.markdown("<h2 style='text-align: center;'>Bem-vindo👋</h2>", unsafe_allow_html=True)
         st.write("")
         
         col1, col2, col3 = st.columns([1, 2, 1])
@@ -163,76 +164,167 @@ class TelaConfirmacaoEmail(TelaBase):
             st.session_state.pagina_acesso = "Login"
             st.rerun()
 
-
 class TelaOnboarding(TelaBase):
+    DEFAULT_AVATAR = "https://i.imgur.com/2tjbfjU.png"
+
     def render(self):
         st.subheader("Nos conte mais sobre você, gênio!")
 
-        nickname = st.text_input("Qual seu nick?", key="onb_nick")
-        cpf = st.text_input("Qual seu CPF?", key="onb_cpf")
-        data_nascimento = st.date_input("Data de nascimento", key="onb_datanascimento", min_value=date(1900, 1, 1), max_value=date.today())
-        genero = st.selectbox("Qual seu gênero?", options=["Masculino", "Feminino", "Outro", "Prefiro não dizer."])
+        img_src = st.session_state.get("avatar_b64", self.DEFAULT_AVATAR)
+        st.markdown(
+            f'<div style="text-align:center;">'
+            f'<img src="{img_src}" style="border-radius:50%; '
+            f'width:150px; height:150px; object-fit:cover; '
+            f'border:4px solid #444;"/>'
+            f'</div>',
+            unsafe_allow_html=True
+        )
 
-        st.markdown("### 🎮 Quais jogos você acompanha? ###")
+        image_file = st.file_uploader(
+            "Envie sua nova foto",
+            type=["png", "jpg", "jpeg"],
+            key="onb_avatar"
+        )
 
-        jogos_ref = db_firebase.collection("jogos")
-        jogos_doc = list(jogos_ref.stream())
+        if image_file is not None:
+            prev_name = st.session_state.get("avatar_name")
+            if image_file.name != prev_name:
+                img_bytes = image_file.read()
+                b64 = base64.b64encode(img_bytes).decode("utf-8")
+                st.session_state["avatar_b64"]   = f"data:image/png;base64,{b64}"
+                st.session_state["avatar_bytes"] = img_bytes
+                st.session_state["avatar_name"]  = image_file.name
+                st.rerun()
 
-        if "jogos_selecionados" not in st.session_state:
-            st.session_state.jogos_selecionados = []
+        st.markdown("---")
 
-        colunas = st.columns(3)
-        col_cycle = cycle(colunas)
+        with st.form("onboarding_form"):
+            nickname = st.text_input("Qual seu nick?", key="onb_nick")
 
-        for jogo_doc in jogos_doc:
-            jogo_id = jogo_doc.id
-            selecionado = jogo_id in st.session_state.jogos_selecionados
+            pais = st.selectbox(
+                "País",
+                [
+                    "Selecione um país",
+                    "Afeganistão", "Alemanha", "Angola", "Argentina", "Austrália",
+                    "Áustria", "Bangladesh", "Bélgica", "Bolívia", "Brasil", "Cabo Verde",
+                    "Canadá", "Chile", "China", "Colômbia", "Coreia do Sul", "Cuba",
+                    "Dinamarca", "Egito", "Emirados Árabes Unidos", "Equador", "Espanha",
+                    "Estados Unidos", "Filipinas", "Finlândia", "França", "Grécia", "Guatemala",
+                    "Holanda", "Hungria", "Índia", "Indonésia", "Irlanda", "Israel", "Itália",
+                    "Japão", "Líbano", "México", "Moçambique", "Nigéria", "Noruega", "Nova Zelândia",
+                    "Paquistão", "Paraguai", "Peru", "Polônia", "Portugal", "Quênia", "Reino Unido",
+                    "República Dominicana", "Rússia", "Suécia", "Suíça", "Tailândia", "Turquia",
+                    "Ucrânia", "Uruguai", "Venezuela", "Vietnã", "Zimbábue", "Outro"
+                ],
+                index=0,
+                key="onb_pais"
+            )
 
-            col = next(col_cycle)
-            with col:
-                if st.button(f"{'✅' if selecionado else '➕'} {jogo_id.capitalize()}", key=f"btn_{jogo_id}"):
+            telefone = st.text_input(
+                "Telefone (somente números)",
+                placeholder="61987654321",
+                key="onb_telefone"
+            )
 
-                    if selecionado:
-                        st.session_state.jogos_selecionados.remove(jogo_id)
-                    else:
-                        st.session_state.jogos_selecionados.append(jogo_id)
-                    st.rerun()
+            cpf = st.text_input("Qual seu CPF?", key="onb_cpf")
 
-        if st.button("Enviar", key="btn_onb_enviar"):
-            if not nickname or not cpf or not genero or not data_nascimento:
-                st.warning("Por favor, preencha todos os campos.")
+            data_nasc = st.date_input(
+                "Data de nascimento",
+                key="onb_datanascimento",
+                min_value=date(1900, 1, 1),
+                max_value=date.today()
+            )
+
+            genero = st.selectbox(
+                "Qual seu gênero?",
+                ["Masculino", "Feminino", "Outro", "Prefiro não dizer."],
+                key="onb_genero"
+            )
+
+            jogos_docs = [doc.id for doc in db_firebase.collection("jogos").stream()]
+            jogos_label = [j.capitalize() for j in jogos_docs]
+            selecionados = st.multiselect(
+                "🎮 Quais jogos você acompanha?",
+                options=jogos_label,
+                key="onb_jogos"
+            )
+
+            try:
+                apelidos_doc = db_firebase.collection("apelidos").document("lista").get()
+                apelidos_dict = apelidos_doc.to_dict() if apelidos_doc.exists else {}
+                apelidos = sorted(apelidos_dict.values())
+            except Exception as e:
+                st.error(f"Erro ao buscar os jogadores favoritos: {e}")
+                apelidos = []
+            
+            palyers_favoritos = st.multiselect(
+                "👤 Quais são seus players favoritos?",
+                options=apelidos,
+                key="onb_players"
+            )
+
+            enviar = st.form_submit_button("Enviar")
+
+
+        if enviar:
+            if not (nickname and cpf and data_nasc and genero and selecionados):
+                st.warning("Preencha todos os campos e selecione ao menos um jogo.")
+                return
+            
+            if pais == "Selecione um país":
+                st.warning("Por favor, selecione seu país")
+                return
+            
+            if not telefone:
+                st.warning("Adicione seu número.")
+                return
+            elif not telefone.isdigit() or not (10 <= len(telefone) <=11):
+                st.error("Informe apenas números.")
                 return
 
             if not validar_cpf(cpf):
-                st.warning("CPF inválido. Verifique e tente novamente.")
+                st.warning("CPF inválido.")
                 return
 
-            usuarios_ref = db_firebase.collection("usuarios").stream()
-            apelido_ja_usado = False
+            for usuario in db_firebase.collection("usuarios").stream():
+                if usuario.to_dict().get("nickname", "").strip().lower() == nickname.strip().lower():
+                    st.warning("Esse nick já está em uso. Escolha outro, por favor.")
+                    return
 
-            for usuario_doc in usuarios_ref:
-                dados = usuario_doc.to_dict()
-                if dados.get("nickname", "").strip().lower() == nickname.strip().lower():
-                    apelido_ja_usado = True
-                    break
-
-            if apelido_ja_usado:
-                st.warning("Esse nick já está em uso. Por favor, escolha outro.")
-                return
+            avatar_url = self.DEFAULT_AVATAR
+            if st.session_state.get("avatar_bytes"):
+                try:
+                    encoded = base64.b64encode(st.session_state["avatar_bytes"]).decode("utf-8")
+                    avatar_url = upload_to_imgur(encoded, data_type="base64")
+                    del st.session_state["avatar_bytes"]
+                except Exception as e:
+                    st.error(f"Falha ao enviar imagem: {e}")
+                    return
 
             try:
                 usuario_id = st.session_state.user_uid
-                db_firebase.collection("usuarios").document(usuario_id).update({
-                    "jogos_acompanhados": st.session_state.jogos_selecionados,
-                    "nickname": nickname,
-                    "cpf": cpf,
-                    "data_nascimento": data_nascimento.isoformat(),
+                data = {
+                    "avatar_url": avatar_url,
+                    "nickname": nickname.strip(),
+                    "pais": pais,
+                    "telefone": telefone,
+                    "cpf": cpf.strip(),
+                    "data_nascimento": data_nasc.isoformat(),
                     "genero": genero,
+                    "jogos_acompanhados": [
+                        jogos_docs[jogos_label.index(j)] for j in selecionados
+                    ],
+                    "players_favoritos": palyers_favoritos,
                     "onboarding_completo": True
-                })
-                st.session_state.nickname = nickname
-                st.success("Onboarding concluído!")
+                }
+
+                db_firebase.collection("usuarios").document(usuario_id).update(data)
+
+                st.session_state.nickname = nickname.strip()
+                st.session_state.avatar_url = avatar_url
+                st.success("Onboarding concluído com sucesso! 🎉")
                 st.session_state.onboarding_pendente = False
                 st.rerun()
+
             except Exception as e:
-                st.error(f"Erro ao salvar escolhas: {e}")
+                st.error(f"Erro ao salvar dados: {e}")
