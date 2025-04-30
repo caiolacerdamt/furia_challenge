@@ -45,6 +45,21 @@ class HomePage(TelaBase):
         except Exception as e:
             st.error(f"Error ao tentar excluir o post")
 
+    def get_avatar_url(self, user_id):
+        try:
+            usuario_ref = db_firebase.collection("usuarios").document(user_id)
+            usuario = usuario_ref.get()
+
+            if usuario.exists:
+                dados_usuario = usuario.to_dict()
+                avatar_url = dados_usuario.get("avatar_url")
+                return avatar_url
+            else:
+                return None
+        except Exception as e:
+            st.error(f"Error ao carregar o avatar: {e}")
+            return None
+
     def render(self):
         if "user" not in st.session_state or not st.session_state.get("usuario_cadastrado", False):
             st.warning("Por favor, faça o login antes de postar.")
@@ -95,6 +110,7 @@ class HomePage(TelaBase):
             is_liked = user_uid in liked_by
             try:
                 author_nickname = nickname if post_data["user_id"] == user_uid else "Usuário"
+                avatar_url = self.get_avatar_url(post_data["user_id"])
 
                 post_time = post_data["timestamp"].strftime('%d/%m/%Y %H:%M')
 
@@ -104,30 +120,36 @@ class HomePage(TelaBase):
                         liked_text = "💔 Descurtir" if is_liked else "❤️ Curtir"
                         is_author = post_data["user_id"] == user_uid
 
-                        st.markdown(f"""
-                            <div style="
-                                background-color: #262730;
-                                padding: 15px;
-                                border-radius: 12px;
-                                margin-bottom: 20px;
-                                box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-                                display: flex;
-                                flex-direction: column;
-                                justify-content: flex-start;
-                                min-height: 250px; /* Garante que todos os posts tenham uma altura mínima */
-                                max-height: 600px; /* Limita a altura máxima */
-                                overflow-y: auto; /* Rolagem quando o conteúdo for muito grande */
-                            ">
-                                <h4 style="color:white; margin-bottom: 10px;">👤 {author_nickname}</h4>
-                                <p style='color:gray; margin-bottom: 10px;'>📅 {post_time}</p>
-                                <p style="color:white; word-wrap: break-word; flex-grow: 1; margin-bottom: 10px;">
-                                    {post_data['content']}
-                                </p>
-                                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px;">
-                                    <p style="color:white; font-weight: bold;">❤️ {post_data['likes']} curtidas</p>
+                        if avatar_url:
+                            st.markdown(f"""
+                                <div style="
+                                    background-color: #262730;
+                                    padding: 15px;
+                                    border-radius: 12px;
+                                    margin-bottom: 20px;
+                                    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+                                    display: flex;
+                                    flex-direction: column;
+                                    justify-content: flex-start;
+                                    min-height: 250px; /* Garante que todos os posts tenham uma altura mínima */
+                                    max-height: 600px; /* Limita a altura máxima */
+                                    overflow-y: auto; /* Rolagem quando o conteúdo for muito grande */
+                                ">
+                                    <div style="display: flex; align-items: center; margin-bottom: 10px;">
+                                        <img src="{avatar_url}" alt="Avatar" style="width: 40px; height: 40px; border-radius: 50%; margin-right: 10px;">
+                                        <h4 style="color:white;">{author_nickname}</h4>
+                                    </div>
+                                    <p style='color:gray; margin-bottom: 10px;'>📅 {post_time}</p>
+                                    <p style="color:white; word-wrap: break-word; flex-grow: 1; margin-bottom: 10px;">
+                                        {post_data['content']}
+                                    </p>
+                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px;">
+                                        <p style="color:white; font-weight: bold;">❤️ {post_data['likes']} curtidas</p>
+                                    </div>
                                 </div>
-                            </div>
-                        """, unsafe_allow_html=True)
+                            """, unsafe_allow_html=True)
+                        else:
+                            st.warning("Avatar não encontrado!")
 
                         col1, col2 = st.columns([2, 1])
                         with col1:
