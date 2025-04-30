@@ -5,7 +5,7 @@ from app.pages.cadastro import (
 )
 from app.pages.home import HomePage
 from app.pages.perfil import TelaPerfil
-from app.pages.fans import InstagramPostsRenderer
+from app.pages.fans import InstagramPostsRenderer, TweetsRenderer
 #from pages.games import GamesPage
 #from pages.fans import FansPage
 
@@ -51,6 +51,10 @@ def main():
             "Fans": InstagramPostsRenderer()
         }
         pages[menu].render()
+
+        if menu == "Fans":
+            tweet_renderer = TweetsRenderer()
+            tweet_renderer.render()
 
         if st.sidebar.button("🚪 Logout"):
             keys_to_remove = [
