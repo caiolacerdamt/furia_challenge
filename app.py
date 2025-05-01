@@ -6,8 +6,7 @@ from app.pages.cadastro import (
 from app.pages.home import HomePage
 from app.pages.perfil import TelaPerfil
 from app.pages.fans import InstagramPostsRenderer, TweetsRenderer
-#from pages.games import GamesPage
-#from pages.fans import FansPage
+from app.pages.chatbot import ChatBot
 
 
 def main():
@@ -42,12 +41,12 @@ def main():
 
         user_name = st.session_state.get("nickname", st.session_state.get("user_nome", "Anonymous"))
         st.sidebar.markdown(f"👤 Olá, {user_name}")
-        menu = st.sidebar.selectbox("Menu", ["Home", "Games", "Fans", "Perfil"])
+        menu = st.sidebar.selectbox("Menu", ["Home", "Chat", "Fans", "Perfil"])
 
         pages = {
             "Home": HomePage(),
             "Perfil": TelaPerfil(),
-            #Games": GamesPage(),
+            "Chat": ChatBot(),
             "Fans": InstagramPostsRenderer()
         }
         pages[menu].render()
@@ -55,6 +54,7 @@ def main():
         if menu == "Fans":
             tweet_renderer = TweetsRenderer()
             tweet_renderer.render()
+        
 
         if st.sidebar.button("🚪 Logout"):
             keys_to_remove = [
