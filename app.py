@@ -1,77 +1,31 @@
 import streamlit as st
-from app.pages.cadastro import (
-    TelaLogin, TelaCadastro, TelaRecuperarSenha,
-    TelaConfirmacaoEmail, TelaOnboarding
-)
-from app.pages.home import HomePage
-from app.pages.perfil import TelaPerfil
-from app.pages.fans import InstagramPostsRenderer, TweetsRenderer, SocialLinksRenderer
-from app.pages.chatbot import ChatBot
-
+from app.utils.session import init_session_state
+from app.views.access import render_access, render_confirm_email
+from app.views.onboarding import render_onboarding
+from app.views.main_app import render_main_app
 
 def main():
     st.set_page_config(layout="wide")
 
-    required_keys = ["user", "usuario_cadastrado"]
-    for key in required_keys:
-        if key not in st.session_state:
-            st.session_state[key] = None
+    init_session_state({
+        "user": None,
+        "usuario_cadastrado": None,
+        "confirmando_email": False,
+        "recuperar_senha": False,
+        "pagina_acesso": "Login",
+        "onboarding_pendente": False,
+    })
 
     if not st.session_state.usuario_cadastrado:
-        if st.session_state.get("confirmando_email", False):
-            TelaConfirmacaoEmail().render()
+        if st.session_state.confirmando_email:
+            render_confirm_email()
         else:
-            with st.container():
-                st.markdown("<h2 style='text-align: center;'>Acesso à Plataforma 🎮</h2>", unsafe_allow_html=True)
-                st.write("")
-
-                pagina = st.session_state.get("pagina_acesso", "Login")
-
-                if pagina == "Login":
-                    if st.session_state.get("recuperar_senha", False):
-                        TelaRecuperarSenha().render()
-                    else:
-                        TelaLogin().render()
-                else:
-                    TelaCadastro().render()
+            render_access()
     else:
-        if st.session_state.get("onboarding_pendente", False):
-            TelaOnboarding().render()
-            return
-
-        user_name = st.session_state.get("nickname", st.session_state.get("user_nome", "Anonymous"))
-        st.sidebar.markdown(f"👤 Olá, {user_name}")
-        menu = st.sidebar.selectbox("Menu", ["Home", "Chat", "Fans", "Perfil"])
-
-        pages = {
-            "Home": HomePage(),
-            "Perfil": TelaPerfil(),
-            "Chat": ChatBot(),
-            "Fans": InstagramPostsRenderer()
-        }
-        pages[menu].render()
-
-        if menu == "Fans":
-            tweet_renderer = TweetsRenderer()
-            tweet_renderer.render()
-            social_links = SocialLinksRenderer()
-            social_links.render()
-        
-
-        if st.sidebar.button("🚪 Logout"):
-            keys_to_remove = [
-                "user",
-                "usuario_cadastrado",
-                "user_email",
-                "user_uid",
-                "user_token",
-                "onboarding_pendente"
-            ]
-            for key in keys_to_remove:
-                if key in st.session_state:
-                    del st.session_state[key]
-            st.rerun()
-
+        if st.session_state.onboarding_pendente:
+            render_onboarding()
+        else:
+            render_main_app()
 
 if __name__ == "__main__":
     main()
