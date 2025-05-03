@@ -3,7 +3,7 @@ from app.firebase.firebase_admin import db_firebase
 from chatbot.scraping_twitch import check_if_live
 from datetime import datetime
 import base64
-from utils.constants import DEFAULT_AVATAR, STREAMERS_FURIA, LINKS_FURIA
+from app.utils.constants import DEFAULT_AVATAR, STREAMERS_FURIA, LINKS_FURIA
 
 
 def initialize_state():
