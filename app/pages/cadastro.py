@@ -4,6 +4,7 @@ from app.firebase.firebase_admin import db_firebase
 from datetime import datetime, date
 from itertools import cycle
 from utils.utils import validar_cpf, upload_to_imgur
+from utils.constants import DEFAULT_AVATAR, PAISES
 import base64
 
 class TelaBase:
@@ -165,12 +166,11 @@ class TelaConfirmacaoEmail(TelaBase):
             st.rerun()
 
 class TelaOnboarding(TelaBase):
-    DEFAULT_AVATAR = "https://i.imgur.com/2tjbfjU.png"
 
     def render(self):
         st.subheader("Nos conte mais sobre você, gênio!")
 
-        img_src = st.session_state.get("avatar_b64", self.DEFAULT_AVATAR)
+        img_src = st.session_state.get("avatar_b64", DEFAULT_AVATAR)
         st.markdown(
             f'<div style="text-align:center;">'
             f'<img src="{img_src}" style="border-radius:50%; '
@@ -202,20 +202,7 @@ class TelaOnboarding(TelaBase):
             nickname = st.text_input("Qual seu nick?", key="onb_nick")
 
             pais = st.selectbox(
-                "País",
-                [
-                    "Selecione um país",
-                    "Afeganistão", "Alemanha", "Angola", "Argentina", "Austrália",
-                    "Áustria", "Bangladesh", "Bélgica", "Bolívia", "Brasil", "Cabo Verde",
-                    "Canadá", "Chile", "China", "Colômbia", "Coreia do Sul", "Cuba",
-                    "Dinamarca", "Egito", "Emirados Árabes Unidos", "Equador", "Espanha",
-                    "Estados Unidos", "Filipinas", "Finlândia", "França", "Grécia", "Guatemala",
-                    "Holanda", "Hungria", "Índia", "Indonésia", "Irlanda", "Israel", "Itália",
-                    "Japão", "Líbano", "México", "Moçambique", "Nigéria", "Noruega", "Nova Zelândia",
-                    "Paquistão", "Paraguai", "Peru", "Polônia", "Portugal", "Quênia", "Reino Unido",
-                    "República Dominicana", "Rússia", "Suécia", "Suíça", "Tailândia", "Turquia",
-                    "Ucrânia", "Uruguai", "Venezuela", "Vietnã", "Zimbábue", "Outro"
-                ],
+                PAISES,
                 index=0,
                 key="onb_pais"
             )
@@ -257,7 +244,7 @@ class TelaOnboarding(TelaBase):
                 st.error(f"Erro ao buscar os jogadores favoritos: {e}")
                 apelidos = []
             
-            palyers_favoritos = st.multiselect(
+            players_favoritos = st.multiselect(
                 "👤 Quais são seus players favoritos?",
                 options=apelidos,
                 key="onb_players"
@@ -291,7 +278,6 @@ class TelaOnboarding(TelaBase):
                     st.warning("Esse nick já está em uso. Escolha outro, por favor.")
                     return
 
-            avatar_url = self.DEFAULT_AVATAR
             if st.session_state.get("avatar_bytes"):
                 try:
                     encoded = base64.b64encode(st.session_state["avatar_bytes"]).decode("utf-8")
@@ -314,7 +300,7 @@ class TelaOnboarding(TelaBase):
                     "jogos_acompanhados": [
                         jogos_docs[jogos_label.index(j)] for j in selecionados
                     ],
-                    "players_favoritos": palyers_favoritos,
+                    "players_favoritos": players_favoritos,
                     "onboarding_completo": True
                 }
 
