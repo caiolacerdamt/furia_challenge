@@ -1,10 +1,12 @@
 import streamlit as st
+import streamlit.components.v1 as components
 from app.firebase.firebase_admin import db_firebase
 from datetime import datetime
 import base64
 import os
 import textwrap
-from utils.constants import LINKS_FURIA
+from app.utils.constants import LINKS_FURIA
+import math
 
 class TelaBase:
     def render(self):
@@ -162,7 +164,6 @@ class TweetsRenderer:
     def render_card(self, tweet: dict) -> str:
         ts = tweet.get('date')
         tweet_url = tweet.get('url', '')
-
         dt = None
         if isinstance(ts, (int, float)):
             dt = datetime.fromtimestamp(ts)
@@ -174,95 +175,114 @@ class TweetsRenderer:
             except ValueError:
                 dt = None
 
-        if dt:
-            raw = dt.strftime('%I:%M %p · %b %d, %Y')
-            time_str = raw.lstrip('0')
-        else:
-            time_str = str(ts)
+        time_str = dt.strftime('%I:%M %p · %b %d, %Y').lstrip('0') if dt else str(ts)
+        content = tweet.get('content', '').replace('<', '&lt;').replace('>', '&gt;')
 
-
-        raw = f"""
+        return textwrap.dedent(f"""
         <div class="tweet-card">
           <div class="tweet-header">
             <img src="{self.profile_image_b64}" class="profile-img"/>
             <div>
-              <strong>FURIA GG</strong> <span class="handle">@furiagg</span><br>
-              <a href="{tweet_url}" target="_blank" class="timestamp">{time_str} 🔗</a>
+              <a href="{tweet_url}" target="_blank" class="handle">@furiagg</a>
             </div>
+            <span class="timestamp">{time_str}</span>
           </div>
           <div class="tweet-content">
-            <p>{tweet.get('content','')}</p>
+            <p>{content}</p>
           </div>
         </div>
-        """
-        return textwrap.dedent(raw)
+        """)
 
     def render(self):
-        st.markdown("<h2 style='color:#f9f3f3;'>✨ Destaques do X✨</h2>", unsafe_allow_html=True)
+        st.markdown(
+            "<h2 style='color:#f9f3f3; margin-bottom:16px;'>✨ Destaques do X ✨</h2>",
+            unsafe_allow_html=True
+        )
 
         tweets = self.fetch_tweets()
-        tweets.pop(3)
 
         if not tweets:
             st.info("Nenhum tweet recente encontrado.")
             return
 
-        css = textwrap.dedent("""
+        cards_html = "".join(self.render_card(t) for t in tweets)
+        html = f"""
         <style>
-        .tweet-grid {
-          display: flex;
-          flex-wrap: wrap;
-          gap: 16px;
-        }
-        .tweet-card {
-          height: 220px;
-          box-sizing: border-box;
-          padding: 16px;
-          border: 1px solid #e1e8ed;
-          border-radius: 8px;
-          display: flex;
-          flex-direction: column;
-          justify-content: space-between;
-          background-color: #262730;
-        }
-        .tweet-header {
-          display: flex;
-          align-items: center;
-          margin-bottom: 8px;
-        }
-        .profile-img {
-          width: 48px;
-          height: 48px;
-          border-radius: 50%;
-          margin-right: 12px;
-        }
-        .handle, .timestamp {
-          color: #657786;
-        }
-        .timestamp {
-          font-size: 0.9em;
-          text-decoration: none;
-        }
-        .timestamp:hover {
-          text-decoration: underline;
-        }
-        .tweet-content p {
-          margin: 0;
-          font-size: 1rem;
-          line-height: 1.4;
-          overflow: hidden;
-          text-overflow: ellipsis;
-        }
-        </style>
-        """)
-        st.markdown(css, unsafe_allow_html=True)
+          @import url('https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@400;600&display=swap');
 
-        columns = st.columns(3)
-        for i, tweet in enumerate(tweets):
-            col = columns[i % 3]
-            with col:
-                card_html = self.render_card(tweet)
-                st.markdown(card_html, unsafe_allow_html=True)
+          .tweet-grid,
+          .tweet-card,
+          .tweet-header,
+          .tweet-header *,
+          .tweet-content,
+          .tweet-content p {{
+            font-family: 'Source Sans Pro', sans-serif;
+          }}
+
+          .tweet-grid {{
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 24px;
+            padding: 0;
+            margin: 0;
+          }}
+          .tweet-card {{
+            background-color: #1e1e29;
+            padding: 16px;
+            border-radius: 8px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            box-sizing: border-box;
+          }}
+          .tweet-header {{
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+          }}
+          .profile-img {{
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 12px;
+          }}
+          .handle {{
+            color: #4f8ef7;
+            margin-left: 4px;
+            text-decoration: none;
+            font-weight: 600;
+          }}
+          .handle:hover {{ text-decoration: underline; }}
+          .timestamp {{
+            margin-left: auto;
+            font-size: 0.75rem;
+            color: #8899a6;
+          }}
+          .tweet-content p {{
+            margin: 0;
+            font-size: 0.9rem;
+            line-height: 1.4;
+            color: #d1d5db;
+          }}
+        </style>
+        <div class="tweet-grid">
+          {cards_html}
+        </div>
+        """
+
+        cols_per_row = 3
+        num_rows = math.ceil(len(tweets) / cols_per_row)
+        approx_row_height = 350 
+        total_height = num_rows * approx_row_height
+
+        components.html(
+            html,
+            height=total_height,
+            scrolling=False
+        )
+
+
 
 
 
