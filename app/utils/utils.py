@@ -1,14 +1,9 @@
 import requests
 import os
 from dotenv import load_dotenv
-from app.firebase.firebase_admin import db_firebase
-import streamlit as st
 
-if os.path.exists(".env"):
-    load_dotenv()
-    IMGUR_CLIENT_ID = os.getenv("IMGUR_CLIENT_ID")
-else:
-    IMGUR_CLIENT_ID = st.secrets["IMGUR"]["CLIENT_ID"]
+load_dotenv()
+IMGUR_CLIENT_ID = os.getenv("IMGUR_CLIENT_ID")
 
 def validar_cpf(cpf: str) -> bool:
     cpf = ''.join(filter(str.isdigit, cpf)) 
@@ -34,4 +29,4 @@ def upload_to_imgur(image_data: str, data_type="url") -> str:
     if response.ok:
         return response.json()["data"]["link"]
     else:
-        raise Exception(f"Imgur upload failed: {response.status_code}, {response.text}")  # Erro se o upload falhar
+        raise Exception(f"Imgur upload failed: {response.status_code}, {response.text}")  
