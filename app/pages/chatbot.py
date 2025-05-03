@@ -10,6 +10,7 @@ from chatbot.handlers import (
     step_list_teams,
     step_list_players,
     step_calendar,
+    step_redes_sociais,
     step_fim,
 )
 
@@ -32,5 +33,6 @@ class ChatBot(TelaBase):
             "list_teams": step_list_teams,
             "list_players": step_list_players,
             "calendar": step_calendar,
+            "redes_sociais": step_redes_sociais,
             "fim": step_fim,
         }[step]()
