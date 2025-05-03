@@ -17,14 +17,14 @@ if os.getenv("ENV") == "LOCAL":
     }
 else:
     firebase_config = {
-        "apiKey": st.secrets["apiKey"],
-        "authDomain": st.secrets["authDomain"],
-        "databaseURL": st.secrets["databaseURL"],
-        "projectId": st.secrets["projectId"],
-        "storageBucket": st.secrets["storageBucket"],
-        "messagingSenderId": st.secrets["messagingSenderId"],
-        "appId": st.secrets["appId"],
-        "measurementId": st.secrets["measurementId"],
+        "apiKey": st.secrets["AUTH"]["apiKey"],
+        "authDomain": st.secrets["AUTH"]["authDomain"],
+        "databaseURL": st.secrets["AUTH"]["databaseURL"],
+        "projectId": st.secrets["AUTH"]["projectId"],
+        "storageBucket": st.secrets["AUTH"]["storageBucket"],
+        "messagingSenderId": st.secrets["AUTH"]["messagingSenderId"],
+        "appId": st.secrets["AUTH"]["appId"],
+        "measurementId": st.secrets["AUTH"]["measurementId"],
     }
 
 firebase = pyrebase.initialize_app(firebase_config)
