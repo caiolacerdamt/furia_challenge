@@ -1,22 +1,31 @@
 import pyrebase
-import os
 import streamlit as st
+import os
 from dotenv import load_dotenv
 
-load_dotenv()
-
-get = lambda k: st.secrets[k] if "streamlit" in os.environ.get("HOME", "").lower() else os.getenv(k)
-
-firebase_config = {
-    "apiKey": get("FIREBASE_API_KEY"),
-    "authDomain": get("FIREBASE_AUTH_DOMAIN"),
-    "databaseURL": get("FIREBASE_DB_URL"),
-    "projectId": get("FIREBASE_PROJECT_ID"),
-    "storageBucket": get("FIREBASE_STORAGE_BUCKET"),
-    "messagingSenderId": get("FIREBASE_MESSAGING_ID"),
-    "appId": get("FIREBASE_APP_ID"),
-    "measurementId": get("FIREBASE_MEASUREMENT_ID"),
-}
+if "apiKey" in st.secrets:
+    firebase_config = {
+        "apiKey": st.secrets["apiKey"],
+        "authDomain": st.secrets["authDomain"],
+        "databaseURL": st.secrets["databaseURL"],
+        "projectId": st.secrets["projectId"],
+        "storageBucket": st.secrets["storageBucket"],
+        "messagingSenderId": st.secrets["messagingSenderId"],
+        "appId": st.secrets["appId"],
+        "measurementId": st.secrets["measurementId"],
+    }
+else:
+    load_dotenv()
+    firebase_config = {
+        "apiKey": os.getenv("API_KEY"),
+        "authDomain": os.getenv("AUTH_DOMAIN"),
+        "databaseURL": os.getenv("DATABASE_URL"),
+        "projectId": os.getenv("PROJECT_ID"),
+        "storageBucket": os.getenv("STORAGE_BUCKET"),
+        "messagingSenderId": os.getenv("MESSAGING_SENDER_ID"),
+        "appId": os.getenv("APP_ID"),
+        "measurementId": os.getenv("MEASUREMENT_ID"),
+    }
 
 firebase = pyrebase.initialize_app(firebase_config)
 auth = firebase.auth()
