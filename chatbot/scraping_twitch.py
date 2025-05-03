@@ -8,8 +8,8 @@ if os.path.exists('.env'):
     CLIENT_ID = os.getenv("TWITCH_CLIENT_ID")
     ACCESS_TOKEN = os.getenv("TWITCH_ACCESS_TOKEN")
 else:
-    CLIENT_ID = st.secrets["TWITCH_CLIENT_ID"]
-    ACCESS_TOKEN = st.secrets["TWITCH_ACCESS_TOKEN"]
+    CLIENT_ID = st.secrets["TWITCH"]["CLIENT_ID"]
+    ACCESS_TOKEN = st.secrets["TWITCH"]["ACCESS_TOKEN"]
 
 def check_if_live(user_logins):
     url = "https://api.twitch.tv/helix/streams"

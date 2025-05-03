@@ -22,24 +22,24 @@ if os.getenv("ENV") == "LOCAL":
     }
 else:
     service_account_dict = {
-        "type": st.secrets["TYPE"],
-        "project_id": st.secrets["PROJECT_ID"],
-        "private_key_id": st.secrets["PRIVATE_KEY_ID"],
-        "private_key": st.secrets["PRIVATE_KEY"],
-        "client_email": st.secrets["CLIENT_EMAIL"],
-        "client_id": st.secrets["CLIENT_ID"],
-        "auth_uri": st.secrets["AUTH_URI"],
-        "token_uri": st.secrets["TOKEN_URI"],
-        "auth_provider_x509_cert_url": st.secrets["AUTH_PROVIDER_X509_CERT_URL"],
-        "client_x509_cert_url": st.secrets["CLIENT_X509_CERT_URL"],
-        "universe_domain": st.secrets["UNIVERSE_DOMAIN"],
+        "type": st.secrets["FIREBASE"]["TYPE"],
+        "project_id": st.secrets["FIREBASE"]["PROJECT_ID"],
+        "private_key_id": st.secrets["FIREBASE"]["PRIVATE_KEY_ID"],
+        "private_key": st.secrets["FIREBASE"]["PRIVATE_KEY"],
+        "client_email": st.secrets["FIREBASE"]["CLIENT_EMAIL"],
+        "client_id": st.secrets["FIREBASE"]["CLIENT_ID"],
+        "auth_uri": st.secrets["FIREBASE"]["AUTH_URI"],
+        "token_uri": st.secrets["FIREBASE"]["TOKEN_URI"],
+        "auth_provider_x509_cert_url": st.secrets["FIREBASE"]["AUTH_PROVIDER_X509_CERT_URL"],
+        "client_x509_cert_url": st.secrets["FIREBASE"]["CLIENT_X509_CERT_URL"],
+        "universe_domain": st.secrets["FIREBASE"]["UNIVERSE_DOMAIN"],
     }
 
 cred = credentials.Certificate(service_account_dict)
 
 if not firebase_admin._apps:
     firebase_admin.initialize_app(cred, {
-        'databaseURL': st.secrets["databaseURL"] if "databaseURL" in st.secrets else os.getenv("DATABASE_URL")
+        'databaseURL': st.secrets["FIREBASE"]["databaseURL"] if "databaseURL" in st.secrets else os.getenv("DATABASE_URL")
     })
 
 db_firebase = db

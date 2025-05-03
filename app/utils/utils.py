@@ -8,15 +8,15 @@ if os.path.exists(".env"):
     load_dotenv()
     IMGUR_CLIENT_ID = os.getenv("IMGUR_CLIENT_ID")
 else:
-    IMGUR_CLIENT_ID = st.secrets["IMGUR_CLIENT_ID"]
+    IMGUR_CLIENT_ID = st.secrets["IMGUR"]["CLIENT_ID"]
 
 def validar_cpf(cpf: str) -> bool:
-    cpf = ''.join(filter(str.isdigit, cpf))
-    if len(cpf) != 11 or cpf == cpf[0] * 11:
+    cpf = ''.join(filter(str.isdigit, cpf)) 
+    if len(cpf) != 11 or cpf == cpf[0] * 11:  
         return False
 
     def calcular_digito(cpf_parcial):
-        soma = sum(int(digito) * peso for digito, peso in zip(cpf_parcial, range(len(cpf_parcial)+1, 1, -1)))
+        soma = sum(int(digito) * peso for digito, peso in zip(cpf_parcial, range(len(cpf_parcial) + 1, 1, -1)))
         resto = soma % 11
         return '0' if resto < 2 else str(11 - resto)
 
@@ -25,14 +25,13 @@ def validar_cpf(cpf: str) -> bool:
 
     return cpf[-2:] == primeiro_digito + segundo_digito
 
-
 def upload_to_imgur(image_data: str, data_type="url") -> str:
-    headers = {"Authorization": f"Client-ID {IMGUR_CLIENT_ID}"}
-    payload = {"image": image_data, "type": data_type}
-    url = "https://api.imgur.com/3/upload"
-    response = requests.post(url, headers=headers, data=payload)
+    headers = {"Authorization": f"Client-ID {IMGUR_CLIENT_ID}"} 
+    payload = {"image": image_data, "type": data_type} 
+    url = "https://api.imgur.com/3/upload" 
+    response = requests.post(url, headers=headers, data=payload) 
+
     if response.ok:
         return response.json()["data"]["link"]
     else:
-        raise Exception(f"Imgur upload failed: {response.status_code}, {response.text}")
-    
+        raise Exception(f"Imgur upload failed: {response.status_code}, {response.text}")  # Erro se o upload falhar
