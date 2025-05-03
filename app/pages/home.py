@@ -1,5 +1,5 @@
 import streamlit as st
-from app.firebase.firebase_admin import db_firebase, storage
+from app.firebase.firebase_admin import db_firebase
 from firebase_admin import firestore
 from datetime import datetime
 from app.utils.constants import DEFAULT_AVATAR
