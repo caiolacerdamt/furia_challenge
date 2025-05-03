@@ -2,8 +2,13 @@ import requests
 import os
 from dotenv import load_dotenv
 from app.firebase.firebase_admin import db_firebase
+import streamlit as st
 
-load_dotenv()
+if os.path.exists(".env"):
+    load_dotenv()
+    IMGUR_CLIENT_ID = os.getenv("IMGUR_CLIENT_ID")
+else:
+    IMGUR_CLIENT_ID = st.secrets["IMGUR_CLIENT_ID"]
 
 def validar_cpf(cpf: str) -> bool:
     cpf = ''.join(filter(str.isdigit, cpf))
@@ -20,7 +25,6 @@ def validar_cpf(cpf: str) -> bool:
 
     return cpf[-2:] == primeiro_digito + segundo_digito
 
-IMGUR_CLIENT_ID = os.getenv("IMGUR_CLIENT_ID")
 
 def upload_to_imgur(image_data: str, data_type="url") -> str:
     headers = {"Authorization": f"Client-ID {IMGUR_CLIENT_ID}"}
