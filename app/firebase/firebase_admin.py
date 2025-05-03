@@ -1,34 +1,45 @@
 import firebase_admin
-from firebase_admin import credentials, firestore, storage
+from firebase_admin import credentials, db
 import os
-import json
 import streamlit as st
 
-if "type" in st.secrets:
-    service_account_dict = {
-        "type": st.secrets["type"],
-        "project_id": st.secrets["project_id"],
-        "private_key_id": st.secrets["private_key_id"],
-        "private_key": st.secrets["private_key"].replace("\\n", "\n"),
-        "client_email": st.secrets["client_email"],
-        "client_id": st.secrets["client_id"],
-        "auth_uri": st.secrets["auth_uri"],
-        "token_uri": st.secrets["token_uri"],
-        "auth_provider_x509_cert_url": st.secrets["auth_provider_x509_cert_url"],
-        "client_x509_cert_url": st.secrets["client_x509_cert_url"],
-        "universe_domain": st.secrets["universe_domain"]
-    }
-else:
+if os.getenv("ENV") == "LOCAL":
     from dotenv import load_dotenv
     load_dotenv()
-    
-    with open("app/firebase/firebase_key.json") as f:
-        service_account_dict = json.load(f)
+
+    service_account_dict = {
+        "type": os.getenv("TYPE"),
+        "project_id": os.getenv("PROJECT_ID"),
+        "private_key_id": os.getenv("PRIVATE_KEY_ID"),
+        "private_key": os.getenv("PRIVATE_KEY").replace("\\n", "\n"),
+        "client_email": os.getenv("CLIENT_EMAIL"),
+        "client_id": os.getenv("CLIENT_ID"),
+        "auth_uri": os.getenv("AUTH_URI"),
+        "token_uri": os.getenv("TOKEN_URI"),
+        "auth_provider_x509_cert_url": os.getenv("AUTH_PROVIDER_X509_CERT_URL"),
+        "client_x509_cert_url": os.getenv("CLIENT_X509_CERT_URL"),
+        "universe_domain": os.getenv("UNIVERSE_DOMAIN"),
+    }
+else:
+    service_account_dict = {
+        "type": st.secrets["TYPE"],
+        "project_id": st.secrets["PROJECT_ID"],
+        "private_key_id": st.secrets["PRIVATE_KEY_ID"],
+        "private_key": st.secrets["PRIVATE_KEY"],
+        "client_email": st.secrets["CLIENT_EMAIL"],
+        "client_id": st.secrets["CLIENT_ID"],
+        "auth_uri": st.secrets["AUTH_URI"],
+        "token_uri": st.secrets["TOKEN_URI"],
+        "auth_provider_x509_cert_url": st.secrets["AUTH_PROVIDER_X509_CERT_URL"],
+        "client_x509_cert_url": st.secrets["CLIENT_X509_CERT_URL"],
+        "universe_domain": st.secrets["UNIVERSE_DOMAIN"],
+    }
+
+cred = credentials.Certificate(service_account_dict)
 
 if not firebase_admin._apps:
-    cred = credentials.Certificate(service_account_dict)
     firebase_admin.initialize_app(cred, {
-        'storageBucket': os.getenv("FIREBASE_STORAGE_BUCKET", "furia-fans.appspot.com")
+        'databaseURL': st.secrets["databaseURL"] if "databaseURL" in st.secrets else os.getenv("DATABASE_URL")
     })
 
-db_firebase = firestore.client()
+db_firebase = db
