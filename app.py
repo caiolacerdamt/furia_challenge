@@ -5,7 +5,7 @@ from app.pages.cadastro import (
 )
 from app.pages.home import HomePage
 from app.pages.perfil import TelaPerfil
-from app.pages.fans import InstagramPostsRenderer, TweetsRenderer
+from app.pages.fans import InstagramPostsRenderer, TweetsRenderer, SocialLinksRenderer
 from app.pages.chatbot import ChatBot
 
 
@@ -54,6 +54,8 @@ def main():
         if menu == "Fans":
             tweet_renderer = TweetsRenderer()
             tweet_renderer.render()
+            social_links = SocialLinksRenderer()
+            social_links.render()
         
 
         if st.sidebar.button("🚪 Logout"):

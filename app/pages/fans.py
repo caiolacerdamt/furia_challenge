@@ -2,11 +2,42 @@ import streamlit as st
 from app.firebase.firebase_admin import db_firebase
 from datetime import datetime
 import base64
+import os
 import textwrap
+from utils.constants import LINKS_FURIA
 
 class TelaBase:
     def render(self):
         raise NotImplementedError()
+    
+class SocialLinksRenderer:
+    def render(self):
+        st.markdown("### 🌍 Todas as Redes Sociais da FURIA")
+
+        redes = list(LINKS_FURIA.items())
+        col1, col2 = st.columns(2)
+
+        for i, (name, url) in enumerate(redes):
+            try:
+                with open(f"static/{name}.png", "rb") as img_file:
+                    b64_img = base64.b64encode(img_file.read()).decode()
+            except Exception:
+                b64_img = "" 
+
+            bloco_html = f"""
+                <div style='background-color:#1e1e1e; padding:16px; border-radius:12px; margin-bottom:15px'>
+                    <a href='{url}' target='_blank' style='color:#fafafa; text-decoration:none; display:flex; align-items:center; gap:16px;'>
+                        <img src='data:image/png;base64,{b64_img}' width='32' height='32' style='border-radius:8px;' />
+                        <span style='font-size:18px; font-weight:bold; color:#9146FF;'>{name.capitalize()}</span>
+                    </a>
+                </div>
+            """
+
+            if i % 2 == 0:
+                col1.markdown(bloco_html, unsafe_allow_html=True)
+            else:
+                col2.markdown(bloco_html, unsafe_allow_html=True)
+
 
 class InstagramPostsRenderer(TelaBase):
     def __init__(self, max_posts=12):
@@ -32,14 +63,6 @@ class InstagramPostsRenderer(TelaBase):
             st.info("Nenhum post recente encontrado.")
             return
         st.markdown("<h2 style='color:#f9f3f3;'>✨ Destaques do Instagram ✨</h2>", unsafe_allow_html=True)
-        st.markdown(
-            "<div style='margin-bottom:20px;'>"
-            "<a href='https://www.instagram.com/furiagg/' target='_blank' "
-            "style='display:inline-block; background:#262730; color:#fff; padding:10px 20px; "
-            "border-radius:8px; font-weight:bold; text-decoration:none;'>"
-            "📸 Siga a FURIA no Instagram</a>"
-            "</div>", unsafe_allow_html=True
-        )
 
         st.markdown("""
             <style>
@@ -176,14 +199,6 @@ class TweetsRenderer:
 
     def render(self):
         st.markdown("<h2 style='color:#f9f3f3;'>✨ Destaques do X✨</h2>", unsafe_allow_html=True)
-        st.markdown(
-            "<div style='margin-bottom:20px;'>"
-            "<a href='https://x.com/furia' target='_blank' "
-            "style='display:inline-block; background:#262730; color:#fff; padding:10px 20px; "
-            "border-radius:8px; font-weight:bold; text-decoration:none;'>"
-            "📸 Siga a FURIA no X</a>"
-            "</div>", unsafe_allow_html=True
-        )
 
         tweets = self.fetch_tweets()
         tweets.pop(3)
