@@ -5,4 +5,4 @@ venv/
 
 .env
 
-firebase
+firebase_key.json
