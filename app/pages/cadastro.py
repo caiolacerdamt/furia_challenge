@@ -3,8 +3,8 @@ from app.firebase.auth_config import auth
 from app.firebase.firebase_admin import db_firebase
 from datetime import datetime, date
 from itertools import cycle
-from utils.utils import validar_cpf, upload_to_imgur
-from utils.constants import DEFAULT_AVATAR, PAISES
+from app.utils.utils import validar_cpf, upload_to_imgur
+from app.utils.constants import DEFAULT_AVATAR, PAISES
 import base64
 
 class TelaBase:
@@ -202,7 +202,8 @@ class TelaOnboarding(TelaBase):
             nickname = st.text_input("Qual seu nick?", key="onb_nick")
 
             pais = st.selectbox(
-                PAISES,
+                "Selecione seu país",
+                options=PAISES,
                 index=0,
                 key="onb_pais"
             )
@@ -277,6 +278,8 @@ class TelaOnboarding(TelaBase):
                 if usuario.to_dict().get("nickname", "").strip().lower() == nickname.strip().lower():
                     st.warning("Esse nick já está em uso. Escolha outro, por favor.")
                     return
+                
+            avatar_url = DEFAULT_AVATAR
 
             if st.session_state.get("avatar_bytes"):
                 try:
