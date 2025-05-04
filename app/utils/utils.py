@@ -1,6 +1,9 @@
 import requests
 import os
 from dotenv import load_dotenv
+import streamlit as st
+
+IMGUR_CLIENT_ID = st.secrets["imgur"]["imgur_client_id"]
 
 load_dotenv()
 IMGUR_CLIENT_ID = os.getenv("IMGUR_CLIENT_ID")
