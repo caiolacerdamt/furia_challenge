@@ -214,7 +214,7 @@ Contribuições são bem-vindas! Siga estes passos:
 
 ## 📄 Licença
 
-Este projeto está licenciado sob a [MIT License](LICENSE).
+Este projeto está licenciado sob a [MIT License](https://github.com/caiolacerdamt/furia_challenge/blob/main/LICENSE.md).
 
 ---
 
