@@ -4,9 +4,9 @@ from dotenv import load_dotenv
 import streamlit as st
 
 IMGUR_CLIENT_ID = st.secrets["imgur"]["imgur_client_id"]
-
-load_dotenv()
-IMGUR_CLIENT_ID = os.getenv("IMGUR_CLIENT_ID")
+IMGUR_CLIENT_SECRET = st.secrets["imgur"]["imgur_client_secret"]
+IMGUR_ACCESS_TOKEN = st.secrets["imgur"]["imgur_access_token"]
+IMGUR_REFRESH_TOKEN = st.secrets["imgur"]["imgur_refresh_token"]
 
 def validar_cpf(cpf: str) -> bool:
     cpf = ''.join(filter(str.isdigit, cpf)) 
@@ -23,13 +23,12 @@ def validar_cpf(cpf: str) -> bool:
 
     return cpf[-2:] == primeiro_digito + segundo_digito
 
-def upload_to_imgur(image_data: str, data_type="url") -> str:
-    headers = {"Authorization": f"Client-ID {IMGUR_CLIENT_ID}"} 
-    payload = {"image": image_data, "type": data_type} 
-    url = "https://api.imgur.com/3/upload" 
-    response = requests.post(url, headers=headers, data=payload) 
+def upload_to_imgur(image_data: str, data_type: str = 'url') -> str:
+    headers = {'Authorization': f'Bearer {IMGUR_ACCESS_TOKEN}'}
+    payload = {'image': image_data, 'type': data_type}
+    url = 'https://api.imgur.com/3/upload'
 
-    if response.ok:
-        return response.json()["data"]["link"]
-    else:
-        raise Exception(f"Imgur upload failed: {response.status_code}, {response.text}")  
+    resp = requests.post(url, headers=headers, data=payload)
+    resp.raise_for_status()
+
+    return resp.json()['data']['link']
