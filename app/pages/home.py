@@ -80,13 +80,13 @@ class HomePage(TelaBase):
             st.error("Usuário não encontrado!")
             return
 
-        st.title("🔥 Comunidade FURIA")
+        st.title("🔥 FanFURIA Feed")
 
         if "tweet_content" not in st.session_state:
             st.session_state["tweet_content"] = ""
 
         with st.form("post_form"):
-            tweet_content = st.text_area("Fala como se sente, furioso!", key="tweet_content", max_chars=500)
+            tweet_content = st.text_area("Solta a canetada, furioso!", key="tweet_content", max_chars=500)
             
             submitted = st.form_submit_button("Post")
             if submitted and tweet_content.strip(): 
@@ -96,12 +96,12 @@ class HomePage(TelaBase):
                 except Exception as e:
                     st.error(f"Error ao postar. Por favor, tente novamente. {e}")
 
-        st.subheader("🚀 Feed da rapaziada")
+        st.subheader("🚀 Veja o que os outros estão falando")
 
         posts = self.get_posts()
 
         if not posts:
-            st.warning("Ainda não há posts por aqui. Seja o primeiro a postar algo!")
+            st.info("Ainda não há posts por aqui. Seja o primeiro a postar algo!")
 
         with st.spinner("Carregando posts..."):
             cols = st.columns(2) 

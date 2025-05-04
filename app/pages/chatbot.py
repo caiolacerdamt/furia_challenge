@@ -20,7 +20,7 @@ class TelaBase:
 
 class ChatBot(TelaBase):
     def render(self):
-        st.title("Chatbot da FURIA")
+        st.title("🤖 FOFURIA - Seu ChatBot preferido!")
         initialize_state()
         render_history()
 

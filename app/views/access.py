@@ -8,7 +8,7 @@ def render_access():
     with st.spinner("Carregando tela de acesso..."):
         st.container()
         st.markdown(
-            "<h2 style='text-align: center;'>Acesso à Plataforma 🎮</h2>",
+            "<h1 style='text-align: center;'>FanFURIA 🎮</h1>",
             unsafe_allow_html=True
         )
         st.write("")

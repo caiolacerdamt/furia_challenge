@@ -170,7 +170,7 @@ def step_list_players():
     players = [d.to_dict() for d in db_firebase.collection("jogos").document(jogo).collection("times").document(team).collection("jogadores").stream()]
     if players:
         texto = f"### 👥 Elenco de **{team}** em {jogo}\n\n"
-        texto += "\n".join(f"- **{p.get('apelido', p.get('nome','?'))}** — {p.get('função','—')}" for p in players)
+        texto += "\n".join(f"- **{p.get('apelido', p.get('nome','?'))}** — {p.get('função') or 'Não definido.'}" for p in players)
     else:
         texto = f"⚠️ Não encontrei jogadores para {team}."
     add_message("assistant", texto)

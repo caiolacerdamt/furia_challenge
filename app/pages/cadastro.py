@@ -13,7 +13,7 @@ class TelaBase:
 
 class TelaLogin(TelaBase):
     def render(self):
-        st.markdown("<h2 style='text-align: center;'>Bem-vindo👋</h2>", unsafe_allow_html=True)
+        st.markdown("<h2 style='text-align: center;'>Login</h2>", unsafe_allow_html=True)
         st.write("")
         
         col1, col2, col3 = st.columns([1, 2, 1])
@@ -168,7 +168,7 @@ class TelaConfirmacaoEmail(TelaBase):
 class TelaOnboarding(TelaBase):
 
     def render(self):
-        st.subheader("Nos conte mais sobre você, gênio!")
+        st.header("📋 Conte um pouco sobre você — prometo que é rápido!")
 
         img_src = st.session_state.get("avatar_b64", DEFAULT_AVATAR)
         st.markdown(

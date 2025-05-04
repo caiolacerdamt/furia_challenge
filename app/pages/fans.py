@@ -14,7 +14,7 @@ class TelaBase:
     
 class SocialLinksRenderer:
     def render(self):
-        st.markdown("### 🌍 Todas as Redes Sociais da FURIA")
+        st.markdown("<h2 style='color:#f9f3f3;'>✨ Todas as redes sociais da FURIA ✨</h2>", unsafe_allow_html=True)
 
         redes = list(LINKS_FURIA.items())
         col1, col2 = st.columns(2)
