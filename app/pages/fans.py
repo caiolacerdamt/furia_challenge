@@ -152,12 +152,20 @@ class TweetsRenderer:
     def fetch_tweets(self) -> list:
         if not self.db or not self.collection_path:
             return []
+
         posts = self.db.collection(self.collection_path).stream()
         tweets = []
+        seen_contents = set()
+
         for post in posts:
             data = post.to_dict()
-            data['id'] = post.id
-            tweets.append(data)
+            content = data.get('content', '').strip()
+
+            if content and content not in seen_contents:
+                data['id'] = post.id
+                tweets.append(data)
+                seen_contents.add(content)
+
         tweets.sort(key=lambda x: x.get('date', 0), reverse=True)
         return tweets[:self.max_tweets]
 
@@ -235,6 +243,9 @@ class TweetsRenderer:
             flex-direction: column;
             justify-content: flex-start;
             box-sizing: border-box;
+            min-height: 200px;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
           }}
           .tweet-header {{
             display: flex;
