@@ -7,6 +7,7 @@ from app.utils.session import logout
 from app.utils.constants import DEFAULT_AVATAR
 
 def render_main_app():
+
     avatar_url = st.session_state.get("avatar_url", DEFAULT_AVATAR)
     username = st.session_state.get(
         "nickname", st.session_state.get("user_nome", "Anonymous")

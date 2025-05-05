@@ -52,6 +52,9 @@ class TelaLogin(TelaBase):
             }
             user_doc = db_firebase.collection("usuarios").document(uid).get()
             dados_usuario = user_doc.to_dict()
+            
+            avatar_url = dados_usuario.get("avatar_url", DEFAULT_AVATAR)
+
             nome = dados_usuario.get("nome", "Usuário") if dados_usuario else "Usuário"
             email_confirmado = auth.get_account_info(id_token)["users"][0]["emailVerified"]
 
@@ -65,6 +68,7 @@ class TelaLogin(TelaBase):
             onboarding_completo = dados_usuario.get("onboarding_completo", False)
             st.session_state.user_email = email
             st.session_state.user_nome = nome
+            st.session_state.avatar_url = avatar_url
             st.session_state.user_uid = uid
             st.session_state.user_token = id_token
             st.session_state.nickname = dados_usuario.get("nickname", nome)
