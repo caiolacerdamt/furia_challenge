@@ -134,6 +134,8 @@ Tudo isso com autenticação, armazenamento e atualização de dados em tempo re
    [imgur]
    imgur_client_id = "seu_client_id"
    imgur_client_secret = "seu_client_secret"
+   imgur_access_token = "seu_access_token"
+   imgur_refresh_token = "seu_refresh_token"
 
    [twitch]
    twitch_client_id = "seu_client_id"
