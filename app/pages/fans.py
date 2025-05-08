@@ -155,16 +155,16 @@ class TweetsRenderer:
 
         posts = self.db.collection(self.collection_path).stream()
         tweets = []
-        seen_contents = set()
+        seen_ids = set()
 
         for post in posts:
+            if post.id in seen_ids:
+                continue
+            
             data = post.to_dict()
-            content = data.get('content', '').strip()
-
-            if content and content not in seen_contents:
-                data['id'] = post.id
-                tweets.append(data)
-                seen_contents.add(content)
+            data["id"] = post.id
+            tweets.append(data)
+            seen_ids.add(post.id)
 
         tweets.sort(key=lambda x: x.get('date', 0), reverse=True)
         return tweets[:self.max_tweets]

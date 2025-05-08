@@ -93,6 +93,7 @@ class HomePage(TelaBase):
                 try:
                     self.set_post(user_uid, tweet_content)
                     st.success("Postado!")
+                    st.rerun()
                 except Exception as e:
                     st.error(f"Error ao postar. Por favor, tente novamente. {e}")
 
